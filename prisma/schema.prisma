@@ -1,0 +1,165 @@
+// Prisma Schema for FECT Exam Management System
+// Faculty of Engineering & Computer Science (FECT)
+// Somali International University (SIU)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Admin Users Model
+model AdminUser {
+  id        String   @id @default(cuid())
+  fullName  String
+  username  String   @unique
+  password  String   // Hashed password
+  email     String?  @unique
+  phone     String?
+  userType  UserType @default(ADMIN)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+enum UserType {
+  ADMIN
+  DEAN
+  HOD
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+// Department Model
+model Department {
+  id        String   @id @default(cuid())
+  name      String   @unique // e.g., "Computer Science", "Civil Engineering"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  classes   Class[]
+
+  @@map("departments")
+}
+
+// Class Model
+model Class {
+  id           String     @id @default(cuid())
+  classTitle   String     // e.g., "CS-2024-A", "CE-2024-B"
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([departmentId])
+  @@map("classes")
+}
+
+// Student Model
+model Student {
+  id        String   @id @default(cuid())
+  studentId String   @unique // e.g., SIU-2023-0000
+  fullName  String
+  department String?  // Department name (Computer Science, Civil Engineering) - nullable for migration
+  classId   String?  // Reference to Class
+  semester  String   // Semester 1, 2, 3, etc.
+  shift     Shift    @default(FULL_TIME)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([classId])
+  @@map("students")
+}
+
+enum Shift {
+  FULL_TIME
+  PART_TIME
+}
+
+// Registration Form Model (Admin creates these)
+model RegistrationForm {
+  id          String   @id @default(cuid())
+  formName    String   // e.g., "Final Semester Special Exam 2024"
+  description String?
+  formType    FormType @default(SPECIAL_EXAM)
+  isOpen      Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?  // Admin user ID
+
+  registrations SpecialExamRegistration[]
+
+  @@map("registration_forms")
+}
+
+enum FormType {
+  SPECIAL_EXAM
+  CLEARANCE_EXAM
+  ADMINISTRATIVE
+  RESIT_EXAM
+  IMPROVEMENT_EXAM
+}
+
+// Special Exam Registration Model
+model SpecialExamRegistration {
+  id              String            @id @default(cuid())
+  registrationFormId String
+  studentId       String            // Reference to Student.studentId (not foreign key to allow flexibility)
+  
+  // Exam scope from UI
+  examScope       ExamScope         @default(SPECIFIC)
+  
+  // For specific courses (when examScope = SPECIFIC)
+  courseName      String?           // Course name when examScope is SPECIFIC
+  examType        ExamType?         // MIDTERM or FINAL (nullable for ALL_MIDTERM/ALL_FINAL)
+  
+  // Reason and documents
+  reason          String
+  documentUrl     String?           // Supabase Storage URL
+  
+  // Approval workflow
+  approvalStatus  ApprovalStatus    @default(PENDING)
+  rejectionReason String?
+  approvedBy      String?            // Admin user ID
+  approvedAt      DateTime?
+  rejectedBy      String?            // Admin user ID
+  rejectedAt      DateTime?
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  registrationForm RegistrationForm @relation(fields: [registrationFormId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([registrationFormId])
+  @@index([approvalStatus])
+  @@map("special_exam_registrations")
+}
+
+enum ExamScope {
+  ALL_MIDTERM  // all-midterm from UI
+  ALL_FINAL    // all-final from UI
+  SPECIFIC     // specific from UI
+}
+
+enum ExamType {
+  MIDTERM
+  FINAL
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
