@@ -379,7 +379,7 @@ export default function ClassesPage() {
                   required
                 >
                   <option value="">Select a department</option>
-                  {staticDepartments.map((dept) => (
+                  {departments.map((dept) => (
                     <option key={dept.id} value={dept.id}>
                       {dept.name}
                     </option>

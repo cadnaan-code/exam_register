@@ -25,7 +25,7 @@ async function cleanupDatabase() {
     const adminUsers = await prisma.adminUser.findMany({
       select: { id: true, username: true, fullName: true },
     })
-    console.log(`ℹ️  Keeping ${adminUsers.count || adminUsers.length} admin user(s):`)
+    console.log(`ℹ️  Keeping ${adminUsers.length} admin user(s):`)
     adminUsers.forEach((user) => {
       console.log(`   - ${user.username} (${user.fullName})`)
     })

@@ -12,14 +12,6 @@ export async function GET(request: NextRequest) {
     if (studentId) {
       const student = await prisma.student.findUnique({
         where: { studentId },
-        include: {
-          registrations: {
-            include: {
-              registrationForm: true,
-            },
-            orderBy: { createdAt: 'desc' },
-          },
-        },
       })
       return NextResponse.json(student)
     }
@@ -33,12 +25,6 @@ export async function GET(request: NextRequest) {
             ],
           }
         : {},
-      include: {
-        registrations: {
-          take: 1,
-          orderBy: { createdAt: 'desc' },
-        },
-      },
       orderBy: { createdAt: 'desc' },
     })
 

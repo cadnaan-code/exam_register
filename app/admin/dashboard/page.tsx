@@ -148,13 +148,6 @@ export default function DashboardPage() {
                   <div className={`${stat.color} p-3 rounded-lg`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  {stat.change && (
-                    <span className={`text-sm font-medium ${
-                      stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {stat.change}
-                    </span>
-                  )}
                   {stat.tag && (
                     <span className={`text-xs px-2 py-1 rounded ${stat.tagColor} text-white`}>
                       {stat.tag}

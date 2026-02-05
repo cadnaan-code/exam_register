@@ -83,7 +83,7 @@ export default function StudentRequestsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          rejectionReason,
+          rejectionReason: rejectReason,
           rejectedBy: 'admin',
         }),
       })

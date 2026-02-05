@@ -659,7 +659,7 @@ export default function ApprovalsPage() {
                   <div>
                     <label className="text-sm text-gray-600">Courses ({selectedRequestData.courses.length})</label>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {selectedRequestData.courses.map((course, index) => (
+                      {selectedRequestData.courses.map((course: string, index: number) => (
                         <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
                           {course}
                         </span>
